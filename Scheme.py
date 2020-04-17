@@ -8,6 +8,8 @@ class Scheme:
         for i in range(0,len(arr)):
             assert (len(arr) == len(arr[i])),"Adjacency matrix must be square"
         self.adj = numpy.matrix(arr)
+        self.degree = len(arr)
+        self.rank = numpy.amax(arr)+1
 
     def Adjacency(self,i):
         toReturn = numpy.matrix(numpy.zeros((len(self.adj),len(self.adj))))
@@ -20,15 +22,22 @@ class Scheme:
         return toReturn
 
     def  P(self,i,j,k):
+        assert (i<self.rank) and (j<self.rank) and (k <self.rank),"The requested structure constant does not exist"
+
         result = numpy.array(self.Adjacency(k)) * numpy.array(numpy.dot(self.Adjacency(i),self.Adjacency(j)))
-        #This is a terrible way to do this
-        #Godsil has numpy.sum(numpy.array(self.Adjacency(k)) * numpy.array(numpy.dot(self.Adjacency(i),self.Adjacency(j))))/vv_k
-        #but what is v_k? v = 6 doesn't seem to work for any values of v_k
         for x in range(0,len(result)):
             if not (result[0,x]==0):
                 return result[0,x]
         return 0
-        #return numpy.trace(numpy.dot(numpy.dot(self.Adjacency(k).transpose(),self.Adjacency(i)),self.Adjacency(j)))
+
+    def StructureConstants(self):
+        ps = numpy.zeros((self.rank,self.rank,self.rank))
+        for i in range(0,self.rank):
+            for j in range(0,self.rank):
+                for k in range(0,self.rank):
+                    ps[k,i,j] = self.P(i,j,k)
+        return ps
+
 
 s66 = Scheme([[0,1,2,2,3,3],[1,0,2,2,3,3],[3,3,0,1,2,2],[3,3,1,0,2,2],[2,2,3,3,0,1],[2,2,3,3,1,0]])
 
@@ -79,14 +88,25 @@ s1254 = Scheme([ [ 0,1,2,3,4,5,6,6,7,7,8,8 ],
 #print(numpy.array(s1.Adjacency(3)) @ numpy.array(numpy.dot(s1.Adjacency(3),s1.Adjacency(0))))
 #print(numpy.array([[0,1],[1,5]])/numpy.array([[0,2],[3,2]]))
 
+"""
 size = len(s122.adj)
 ps = numpy.zeros((size,size,size))
 for i in range(0,size):
     for j in range(0,size):
         for k in range(0,size):
             ps[k,i,j] = s122.P(i,j,k)
+"""
 numpy.set_printoptions(threshold=numpy.inf)
-print(ps)
+print("n=6,#=6------------------")
+print(s66.StructureConstants())
+print("n=9,#=10-----------------")
+print(s910.StructureConstants())
+print("n=11,#=3-----------------")
+print(s113.StructureConstants())
+print("n=12,#=2-----------------")
+print(s66.StructureConstants())
+print("n=12,#=54----------------")
+print(s1254.StructureConstants())
 
 
 
