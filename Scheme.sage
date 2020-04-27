@@ -2,6 +2,7 @@ from array import array
 #from sage.all import *
 import numpy as numpy
 import math as math
+import drg
 
 class Scheme:
     def __init__(self,arr):
@@ -30,18 +31,13 @@ class Scheme:
         for i in range(0,self.rank):
             sum = numpy.add(sum,self.Adjacency(i))
         if (not numpy.all(sum==1)):
-            return False
+            return False;
         for i in range(0,self.rank):
             for j in range(0,self.rank):
                 if (not numpy.array_equal(numpy.dot(self.Adjacency(i),self.Adjacency(j)),numpy.dot(self.Adjacency(j),self.Adjacency(i)))):
                     return False
         return True
 
-    def InverseRelation(self, r):
-        for i in range(0,self.rank):
-            if self.P(r,i,0)>0:
-                return i
-        assert(False)
 
     def  P(self,i,j,k):
         assert (i<self.rank) and (j<self.rank) and (k <self.rank),"The requested structure constant does not exist"
@@ -52,9 +48,6 @@ class Scheme:
                 return result[0,x]
         return 0
 
-    def Valency(self,i):
-        return self.P(i,self.InverseRelation(i),0)
-
     def StructureConstants(self):
         ps = numpy.zeros((self.rank,self.rank,self.rank))
         for i in range(0,self.rank):
@@ -63,19 +56,13 @@ class Scheme:
                     ps[k,i,j] = self.P(i,j,k)
         return ps
 
-
-    #VERTICES ARE 1-INDEXED!
-    #RELATIONS ARE 0-INDEXED!
-    def RelationBetween(self, v1, v2):
-        return self.adj[v1-1,v2-1]
-
-    def TripleIntersectionNumber(self, v1,v2,v3, r1,r2,r3):
-        count = 0
-        for vertex in range(1,self.degree+1):
-            if self.RelationBetween(v1,vertex)==r1 and self.RelationBetween(v2,vertex)==r2 and self.RelationBetween(v3,vertex)==r3:
-                count+=1
-        return count
-
+    def StructureConstantsAsArray3D(self):
+        ps = drg.Array3D(self.rank)
+        for i in range(0,self.rank):
+            for j in range(0,self.rank):
+                for k in range(0,self.rank):
+                    ps[k,i,j] = self.P(i,j,k)
+        return ps
 
 
 s66 = Scheme([[0,1,2,2,3,3],[1,0,2,2,3,3],[3,3,0,1,2,2],[3,3,1,0,2,2],[2,2,3,3,0,1],[2,2,3,3,1,0]])
@@ -136,34 +123,8 @@ for i in range(0,size):
             ps[k,i,j] = s122.P(i,j,k)
 """
 numpy.set_printoptions(threshold=numpy.inf)
-
-constants66 = s66.StructureConstants()
-
-currentScheme = s66
-currentTIN = 0
-counts = [0,0,0]
-for v1 in range(1,currentScheme.degree+1):
-    for v2 in range(1,currentScheme.degree+1):
-        for v3 in range(1,currentScheme.degree+1):
-            for r1 in range(0,currentScheme.rank):
-                for r2 in range(0,currentScheme.rank):
-                    for r3 in range(0,currentScheme.rank):
-                        currentTIN = currentScheme.TripleIntersectionNumber(v1,v2,v3,r1,r2,r3)
-                        counts[currentTIN]+=1
-                        """
-                        if currentTIN>1:
-                            print("[%c %c %c]" % (chr(64+v1),chr(64+v2),chr(64+v3)))
-                            print("[%d %d %d] = %d" % (r1,r2,r3,currentTIN))
-                            print()
-                        """
-print("-----------------")
-print(counts)
-
-#print(s66.TripleIntersectionNumber(1,2,3,0,1,3))
-
-"""
 print("n=6,#=6------------------")
-print(s66.IsSymmetric)
+print(s66.IsSymmetric())
 #print(s66.StructureConstants())
 print("n=9,#=10-----------------")
 print(s910.IsSymmetric())
@@ -177,11 +138,20 @@ print(s122.IsSymmetric())
 print("n=12,#=54----------------")
 print(s1254.IsSymmetric())
 #print(s1254.StructureConstants())
-myScheme = drg.ASParameters(113.StructureConstants())
-print("done with scheme")
+
+
+print("00000000000000000000000000000000000000000000000000000000000000000000000")
+myScheme = drg.ASParameters(s66.StructureConstantsAsArray3D())
 print(myScheme)
-print(s113.StructureConstants())
-"""
+#print(myScheme.subconstituent(2,compute=True))
+for i in range(1,4):
+    for j in range(1,4):
+        for k in range(1,4):
+            try:
+                print(myScheme.tripleEquations(i,j,k))
+                break
+            except AssertionError as error:
+                print(error)
 
 """
 example
