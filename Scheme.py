@@ -138,10 +138,14 @@ for i in range(0,size):
 numpy.set_printoptions(threshold=numpy.inf)
 
 constants66 = s66.StructureConstants()
+file = open("scheme1254TINs.txt","w") 
+ 
+ 
 
-currentScheme = s66
+currentScheme = s1254
 currentTIN = 0
-counts = [0,0,0]
+print("started")
+counts = numpy.zeros(currentScheme.degree)
 for v1 in range(1,currentScheme.degree+1):
     for v2 in range(1,currentScheme.degree+1):
         for v3 in range(1,currentScheme.degree+1):
@@ -150,13 +154,14 @@ for v1 in range(1,currentScheme.degree+1):
                     for r3 in range(0,currentScheme.rank):
                         currentTIN = currentScheme.TripleIntersectionNumber(v1,v2,v3,r1,r2,r3)
                         counts[currentTIN]+=1
-                        """
-                        if currentTIN>1:
-                            print("[%c %c %c]" % (chr(64+v1),chr(64+v2),chr(64+v3)))
-                            print("[%d %d %d] = %d" % (r1,r2,r3,currentTIN))
-                            print()
-                        """
-print("-----------------")
+                        file.write("[%c %c %c]\n" % (chr(64+v1),chr(64+v2),chr(64+v3)))
+                        file.write("[%d %d %d] = %d\n" % (r1,r2,r3,currentTIN))
+                        file.write("\n")
+
+file.close()
+
+print("done")
+print(currentScheme.IsSymmetric())
 print(counts)
 
 #print(s66.TripleIntersectionNumber(1,2,3,0,1,3))
